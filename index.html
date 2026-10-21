@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HealthCare.gov — Marketplace Agent Desktop (Demo)</title>
+<style>
+:root {
+  --bg: #eef1f5;
+  --surface: #fff;
+  --text: #1a1f36;
+  --muted: #5c6370;
+  --accent: #0b5cab;
+  --accent-dark: #083d73;
+  --accent-soft: #e8f1fb;
+  --border: #d8dee6;
+  --success: #0d7a4a;
+  --success-bg: #e8f4ea;
+  --warn: #9a6700;
+  --warn-bg: #fff8e6;
+  --danger: #b42318;
+  --danger-bg: #fef3f2;
+  --script-bg: #f8f9fc;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.45;
+  font-size: 14px;
+}
+.topbar {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  padding: 0.65rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.topbar h1 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.topbar .sub { font-size: 0.8rem; opacity: 0.9; }
+.call-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.call-strip strong { font-weight: 600; }
+.demo-badge {
+  background: #ffc107;
+  color: #1a1f36;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  min-height: calc(100vh - 56px);
+}
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.panel-head {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: #f8f9fb;
+  border-bottom: 1px solid var(--border);
+}
+.panel-body { padding: 0.85rem; }
+label.field-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+select, input, textarea {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: inherit;
+  margin-bottom: 0.65rem;
+}
+textarea { min-height: 72px; resize: vertical; }
+.kv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+}
+.kv-grid .full { grid-column: 1 / -1; }
+.kv-item .k { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.kv-item .v { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
+.status-pill {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.status-active { background: var(--success-bg); color: var(--success); }
+.status-cancelled { background: var(--danger-bg); color: var(--danger); }
+.status-pending { background: var(--warn-bg); color: var(--warn); }
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: #f8f9fb;
+}
+.tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tabs button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--surface);
+}
+.tab-pane { display: none; padding: 0.85rem; }
+.tab-pane.active { display: block; }
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+.action-grid button {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: background 0.12s, border-color 0.12s;
+}
+.action-grid button:hover {
+  background: var(--accent-soft);
+  border-color: #a8c4e8;
+}
+.action-grid button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.action-grid button.primary:hover { background: var(--accent-dark); }
+.action-grid .full { grid-column: 1 / -1; }
+.script-box {
+  background: var(--script-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.88rem;
+  margin-top: 0.5rem;
+}
+.script-box p { margin: 0 0 0.65rem; }
+.script-box p:last-child { margin-bottom: 0; }
+.script-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+.verify-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.verify-row button {
+  padding: 0.4rem 0.75rem;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.verify-row button.secondary {
+  background: #fff;
+  color: var(--accent);
+}
+.alert {
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  margin-bottom: 0.65rem;
+}
+.alert-info { background: var(--accent-soft); border: 1px solid #b8d4f0; }
+.alert-warn { background: var(--warn-bg); border: 1px solid #f0d48a; }
+.alert-success { background: var(--success-bg); border: 1px solid #a8d5bc; }
+.handoff-banner {
+  background: #fff3cd;
+  border: 1px solid #ffda6a;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+}
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.timeline li:last-child { border-bottom: none; }
+.timeline .ts { color: var(--muted); font-size: 0.72rem; }
+.toast {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  background: #1a1f36;
+  color: #fff;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  max-width: 360px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 10px;
+  max-width: 480px;
+  width: 100%;
+  padding: 1.1rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.modal h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+.modal p { margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem; }
+.modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.modal-actions button {
+  padding: 0.45rem 0.85rem;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+.modal-actions button.confirm {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+footer.demo-footer {
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <h1>HealthCare.gov Marketplace — Agent Desktop</h1>
+    <div class="sub">Contact Center Representative View · FFM Eligibility &amp; Enrollment</div>
+  </div>
+  <div class="call-strip">
+    <span class="demo-badge">DEMONSTRATION ONLY</span>
+    <span><strong>Call:</strong> <span id="callTimer">00:02:14</span></span>
+    <span><strong>ANI:</strong> <span id="displayAni">—</span></span>
+    <span><strong>Agent:</strong> Demo Rep (CSR-10482)</span>
+    <span><strong>Queue:</strong> Marketplace General</span>
+  </div>
+</header>
+
+<div class="handoff-banner" id="handoffBanner" hidden>
+  <strong>Navigator handoff:</strong> <span id="handoffText"></span>
+</div>
+
+<div class="layout">
+  <!-- Left: lookup & verification -->
+  <aside class="panel">
+    <div class="panel-head">Caller lookup</div>
+    <div class="panel-body">
+      <label class="field-label" for="profileSelect">Demo caller profile</label>
+      <select id="profileSelect" aria-label="Select demo caller"></select>
+
+      <label class="field-label" for="searchApp">Application ID</label>
+      <input id="searchApp" type="text" readonly/>
+
+      <div class="verify-row">
+        <button type="button" id="btnVerify" class="primary">Mark identity verified</button>
+        <button type="button" id="btnResetVerify" class="secondary">Reset</button>
+      </div>
+      <div id="verifyStatus" class="alert alert-warn">Identity not verified — complete KBA or warm transfer auth before disclosing PHI.</div>
+
+      <div class="panel-head" style="margin: 0.5rem -0.85rem 0.65rem; border-top: 1px solid var(--border);">Household</div>
+      <div class="kv-grid" id="householdKv"></div>
+    </div>
+
+    <div class="panel-head">Quick transfers</div>
+    <div class="panel-body">
+      <div class="action-grid">
+        <button type="button" data-action="transfer" data-queue="Enrollment Specialist">Enrollment</button>
+        <button type="button" data-action="transfer" data-queue="Eligibility & APTC">Eligibility / APTC</button>
+        <button type="button" data-action="transfer" data-queue="1095-A & Tax Forms">1095-A / Tax</button>
+        <button type="button" data-action="transfer" data-queue="Account & Login">Account / Login</button>
+        <button type="button" class="full" data-action="transfer" data-queue="Supervisor">Supervisor</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Center: plan & enrollment -->
+  <main class="panel">
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>Member &amp; plan summary</span>
+      <span id="memberNameHead" style="font-size:0.85rem;text-transform:none;letter-spacing:0;color:var(--text);"></span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="active" data-tab="health">Health plan</button>
+      <button type="button" data-tab="dental">Dental</button>
+      <button type="button" data-tab="financial">Financial assistance</button>
+      <button type="button" data-tab="application">Application</button>
+    </div>
+
+    <div id="tab-health" class="tab-pane active">
+      <div class="kv-grid" id="healthKv"></div>
+      <div class="alert alert-info" id="coverageGuidance"></div>
+    </div>
+    <div id="tab-dental" class="tab-pane">
+      <div class="kv-grid" id="dentalKv"></div>
+    </div>
+    <div id="tab-financial" class="tab-pane">
+      <div class="kv-grid" id="financialKv"></div>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0;">
+        Remind callers: premium tax credit applies to <strong>health</strong> coverage only. Applied APTC reduces monthly premium; maximum APTC is eligibility ceiling.
+      </p>
+    </div>
+    <div id="tab-application" class="tab-pane">
+      <div class="kv-grid" id="applicationKv"></div>
+    </div>
+
+    <div class="panel-head">Suggested call script</div>
+    <div class="panel-body" style="padding-top:0.65rem;">
+      <div class="script-label">Opening (after verification)</div>
+      <div class="script-box" id="scriptOpening"></div>
+      <div class="script-label" style="margin-top:0.75rem;">Common resolution paths</div>
+      <div class="script-box" id="scriptPaths"></div>
+    </div>
+  </main>
+
+  <!-- Right: actions & notes -->
+  <aside class="panel">
+    <div class="panel-head">Representative actions</div>
+    <div class="panel-body">
+      <div class="action-grid">
+        <button type="button" data-action="send-sms" data-template="plan-contact">Text plan phone #</button>
+        <button type="button" data-action="send-sms" data-template="payment-link">Text payment info</button>
+        <button type="button" data-action="doc" data-doc="1095a">Resend 1095-A (demo)</button>
+        <button type="button" data-action="doc" data-doc="eligibility">Resend eligibility notice</button>
+        <button type="button" data-action="sep">Report qualifying life event</button>
+        <button type="button" data-action="aptc">Adjust APTC application amount</button>
+        <button type="button" data-action="plan-change">Initiate plan change / OEP</button>
+        <button type="button" data-action="cancel">Cancel coverage (walkthrough)</button>
+        <button type="button" data-action="reinstate">Reinstate / undo cancel request</button>
+        <button type="button" data-action="password">Account unlock / password reset</button>
+        <button type="button" class="full primary" data-action="wrap">Complete interaction &amp; disposition</button>
+      </div>
+    </div>
+
+    <div class="panel-head">Activity log (this call)</div>
+    <div class="panel-body" style="padding-top:0.35rem;">
+      <ul class="timeline" id="activityLog"></ul>
+    </div>
+
+    <div class="panel-head">Call notes</div>
+    <div class="panel-body">
+      <textarea id="callNotes" placeholder="Document verification, plan year discussed, amounts shared, and next steps…"></textarea>
+      <button type="button" id="btnSaveNotes" style="width:100%;padding:0.45rem;border:1px solid var(--border);border-radius:5px;background:#fff;font-weight:600;cursor:pointer;">Save notes to record (demo)</button>
+    </div>
+  </aside>
+</div>
+
+<footer class="demo-footer">
+  Synthetic data for training and voice-demo scripting only. Not connected to CMS systems. Do not use real member PHI.
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Confirm action</h3>
+    <p id="modalBody"></p>
+    <div class="modal-actions">
+      <button type="button" id="modalCancel">Cancel</button>
+      <button type="button" id="modalConfirm" class="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const profiles = [
+    {
+      id: "maria",
+      label: "Maria Gonzalez — Active coverage, APTC applied",
+      handoff: "Virtual assistant routed: caller asked about monthly premium after tax credit.",
+      ani: "(317) 555-0142",
+      applicationId: "FFM-2026-8842190",
+      verified: false,
+      household: {
+        "Primary applicant": "Maria Gonzalez",
+        "DOB": "03/12/1978",
+        "State / ZIP": "Indiana · 46204",
+        "Household size": "3 (self, spouse, 1 dependent)",
+        "Mailing on file": "1420 N Meridian St, Indianapolis, IN 46204"
+      },
+      health: {
+        "Plan year (current)": "2026",
+        "Issuer / plan": "Ambetter from MHS · Silver 87",
+        "Metal level": "Silver",
+        "Member ID": "AMB-6629401",
+        "Enrollment status": { text: "Active", class: "status-active" },
+        "Coverage effective": "01/01/2026",
+        "Monthly premium (before APTC)": "$612.40",
+        "Monthly premium (after APTC)": "$184.00",
+        "Plan customer service": "1-877-617-0390"
+      },
+      dental: {
+        "Dental plan year": "2026",
+        "Dental issuer": "Delta Dental of Indiana",
+        "Dental status": { text: "Active", class: "status-active" },
+        "Dental premium": "$32.10 / month"
+      },
+      financial: {
+        "Eligible for APTC": "Yes",
+        "Maximum APTC (monthly)": "$428.40",
+        "Applied APTC (monthly)": "$428.40",
+        "CSR / cost-sharing": "Enhanced Silver (87%)",
+        "Estimated annual household income": "$48,200"
+      },
+      application: {
+        "Latest application status": "Enrolled — in force",
+        "Last submitted": "12/14/2025",
+        "Open SEP window": "None",
+        "Auto-renewal (next year)": "Eligible — review during OEP",
+        "Identity proofing": "Passed (Marketplace account)"
+      },
+      coverageGuidance: "Current-year coverage is active. For 2027 changes, Open Enrollment begins November 1. Caller may update APTC allocation with an application change during OEP or SEP if eligible.",
+      scriptOpening: [
+        "Thank you for calling the Marketplace. My name is [Agent]. I’ve verified your identity. I see you’re enrolled in Ambetter Silver 87 for 2026 with active coverage.",
+        "How can I help you today — premium amount, plan contact information, or something else on your application?"
+      ],
+      scriptPaths: [
+        "<strong>Premium question:</strong> State premium <em>after</em> applied tax credit ($184/mo). Full plan premium is $612.40; $428.40 APTC is applied monthly.",
+        "<strong>Provider / billing:</strong> Issuer bills and maintains provider network — offer to text plan customer service at 1-877-617-0390.",
+        "<strong>APTC change:</strong> Use application update; SEP required for mid-year unless OEP."
+      ]
+    },
+    {
+      id: "james",
+      label: "James Rivera — Dental focus, health active",
+      handoff: "Navigator handback: caller asked whether dental coverage continues next year.",
+      ani: "(463) 555-0198",
+      applicationId: "FFM-2026-7710023",
+      verified: false,
+      household: {
+        "Primary applicant": "James Rivera",
+        "DOB": "07/22/1965",
+        "State / ZIP": "Indiana · 46032",
+        "Household size": "2",
+        "Mailing on file": "8902 E 116th St, Fishers, IN 46032"
+      },
+      health: {
+        "Plan year (current)": "2026",
+        "Issuer / plan": "CareSource Marketplace · Gold",
+        "Metal level": "Gold",
+        "Member ID": "CS-4412098",
+        "Enrollment status": { text: "Active", class: "status-active" },
+        "Coverage effective": "01/01/2026",
+        "Monthly premium (after APTC)": "$0.00 (after full APTC applied)",
+        "Plan customer service": "1-800-488-0134"
+      },
+      dental: {
+        "Dental plan year": "2026",
+        "Dental issuer": "None enrolled",
+        "Dental status": { text: "Not enrolled", class: "status-cancelled" },
+        "Dental premium": "—"
+      },
+      financial: {
+        "Eligible for APTC": "Yes",
+        "Maximum APTC (monthly)": "$512.00",
+        "Applied APTC (monthly)": "$512.00",
+        "CSR / cost-sharing": "Not applicable (Gold plan)",
+        "Estimated annual household income": "$41,800"
+      },
+      application: {
+        "Latest application status": "Enrolled — health only",
+        "Last submitted": "11/28/2025",
+        "Open SEP window": "None",
+        "Auto-renewal (next year)": "Health — yes; Dental — not auto-enrolled",
+        "Identity proofing": "Passed"
+      },
+      coverageGuidance: "Health coverage will auto-renew if eligible. Dental is not enrolled — caller must actively select a dental plan during Open Enrollment; dental is not auto-renewed like health.",
+      scriptOpening: [
+        "I’ve confirmed your account, Mr. Rivera. Your 2026 CareSource Gold health plan is active.",
+        "You asked about dental — you don’t currently have a Marketplace dental plan. Would you like to hear options for enrolling in dental during Open Enrollment?"
+      ],
+      scriptPaths: [
+        "<strong>Health vs dental:</strong> Always clarify which coverage type before giving details.",
+        "<strong>Next-year dental:</strong> No automatic dental enrollment — shop during OEP (Nov 1 – Jan 15 in most states).",
+        "<strong>$0 premium:</strong> Explain this is after full premium tax credit is applied, not absence of financial help."
+      ]
+    },
+    {
+      id: "patricia",
+      label: "Patricia Kim — SEP pending, APTC partial",
+      handoff: "Escalation: caller reported move to new county; SEP documentation needed.",
+      ani: "(812) 555-0116",
+      applicationId: "FFM-2026-9034411",
+      verified: false,
+      household: {
+        "Primary applicant": "Patricia Kim",
+        "DOB": "11/03/1990",
+        "State / ZIP": "Indiana · 47401 (recent move)",
+        "Household size": "1",
+        "Mailing on file": "Pending address update"
+      },
+      health: {
+        "Plan year (current)": "2026",
+        "Issuer / plan": "Anthem Blue Cross · Bronze 60",
+        "Metal level": "Bronze",
+        "Member ID": "ANT-2209844",
+        "Enrollment status": { text: "Active — change pending", class: "status-pending" },
+        "Coverage effective": "01/01/2026",
+        "Monthly premium (after APTC)": "$96.50",
+        "Plan customer service": "1-844-579-9780"
+      },
+      dental: {
+        "Dental plan year": "2026",
+        "Dental issuer": "Anthem Dental Essential",
+        "Dental status": { text: "Active", class: "status-active" },
+        "Dental premium": "$18.90 / month"
+      },
+      financial: {
+        "Eligible for APTC": "Yes",
+        "Maximum APTC (monthly)": "$351.00",
+        "Applied APTC (monthly)": "$254.50",
+        "CSR / cost-sharing": "None (Bronze)",
+        "Estimated annual household income": "$36,400"
+      },
+      application: {
+        "Latest application status": "SEP — move (60-day window)",
+        "Last submitted": "10/02/2026",
+        "Open SEP window": "Move to new county · ends 11/28/2026",
+        "Auto-renewal (next year)": "Review during OEP",
+        "Identity proofing": "Verified on call"
+      },
+      coverageGuidance: "Caller has an open Special Enrollment Period due to permanent move. Complete application update and plan selection before SEP end date. Partial APTC applied by choice — can increase up to maximum.",
+      scriptOpening: [
+        "Ms. Kim, I see your Special Enrollment Period for your move is open through November 28th.",
+        "We can update your address, review plans available in Monroe County, and adjust how much premium tax credit you apply each month if you’d like."
+      ],
+      scriptPaths: [
+        "<strong>SEP move:</strong> Confirm move date and county; upload proof if requested by system.",
+        "<strong>Partial APTC:</strong> Applied $254.50 of $351.00 max — explain tax-time tradeoff if they apply less.",
+        "<strong>Plan change:</strong> Compare networks in new service area before selecting."
+      ]
+    }
+  ];
+
+  let current = profiles[0];
+  let identityVerified = false;
+  let pendingModalCallback = null;
+  let callSeconds = 134;
+
+  const $ = (sel) => document.querySelector(sel);
+  const profileSelect = $("#profileSelect");
+  const toast = $("#toast");
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove("show"), 3200);
+  }
+
+  function logActivity(text) {
+    const ul = $("#activityLog");
+    const li = document.createElement("li");
+    const now = new Date();
+    const ts = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    li.innerHTML = `<span class="ts">${ts}</span><br>${text}`;
+    ul.prepend(li);
+  }
+
+  function renderKv(containerId, data) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
+    Object.entries(data).forEach(([k, v]) => {
+      const div = document.createElement("div");
+      div.className = "kv-item";
+      if (typeof v === "object" && v.text) {
+        div.innerHTML = `<div class="k">${k}</div><div class="v"><span class="status-pill ${v.class}">${v.text}</span></div>`;
+      } else {
+        div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
+      }
+      el.appendChild(div);
+    });
+  }
+
+  function setVerifyUI() {
+    const box = $("#verifyStatus");
+    if (identityVerified) {
+      box.className = "alert alert-success";
+      box.textContent = "Identity verified — you may discuss enrollment and PHI for this household.";
+    } else {
+      box.className = "alert alert-warn";
+      box.textContent = "Identity not verified — complete KBA or warm transfer auth before disclosing PHI.";
+    }
+  }
+
+  function loadProfile(p) {
+    current = p;
+    identityVerified = p.verified;
+    $("#searchApp").value = p.applicationId;
+    $("#displayAni").textContent = p.ani;
+    $("#memberNameHead").textContent = p.household["Primary applicant"];
+    renderKv("householdKv", p.household);
+    renderKv("healthKv", p.health);
+    renderKv("dentalKv", p.dental);
+    renderKv("financialKv", p.financial);
+    renderKv("applicationKv", p.application);
+    $("#coverageGuidance").textContent = p.coverageGuidance;
+    $("#scriptOpening").innerHTML = p.scriptOpening.map((line) => `<p>${line}</p>`).join("");
+    $("#scriptPaths").innerHTML = p.scriptPaths.map((line) => `<p>${line}</p>`).join("");
+    const banner = $("#handoffBanner");
+    if (p.handoff) {
+      banner.hidden = false;
+      $("#handoffText").textContent = p.handoff;
+    } else {
+      banner.hidden = true;
+    }
+    setVerifyUI();
+    logActivity(`Loaded profile: ${p.household["Primary applicant"]}`);
+  }
+
+  profiles.forEach((p) => {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.label;
+    profileSelect.appendChild(opt);
+  });
+
+  profileSelect.addEventListener("change", () => {
+    const p = profiles.find((x) => x.id === profileSelect.value);
+    if (p) loadProfile(p);
+  });
+
+  document.querySelectorAll(".tabs button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach((pane) => pane.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  $("#btnVerify").addEventListener("click", () => {
+    identityVerified = true;
+    setVerifyUI();
+    logActivity("Identity verification completed (demo KBA passed).");
+    showToast("Identity marked verified.");
+  });
+  $("#btnResetVerify").addEventListener("click", () => {
+    identityVerified = false;
+    setVerifyUI();
+    logActivity("Verification reset.");
+  });
+
+  function openModal(title, body, onConfirm) {
+    $("#modalTitle").textContent = title;
+    $("#modalBody").textContent = body;
+    pendingModalCallback = onConfirm;
+    $("#modalBackdrop").classList.add("open");
+    $("#modalBackdrop").setAttribute("aria-hidden", "false");
+  }
+  function closeModal() {
+    $("#modalBackdrop").classList.remove("open");
+    $("#modalBackdrop").setAttribute("aria-hidden", "true");
+    pendingModalCallback = null;
+  }
+  $("#modalCancel").addEventListener("click", closeModal);
+  $("#modalConfirm").addEventListener("click", () => {
+    if (pendingModalCallback) pendingModalCallback();
+    closeModal();
+  });
+
+  function requireVerified(actionName, fn) {
+    if (!identityVerified) {
+      showToast("Verify identity before: " + actionName);
+      logActivity(`Blocked (${actionName}): identity not verified.`);
+      return;
+    }
+    fn();
+  }
+
+  document.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      if (action === "transfer") {
+        const q = btn.dataset.queue;
+        logActivity(`Warm transfer initiated → ${q} (demo).`);
+        showToast("Transfer simulated to " + q);
+        return;
+      }
+      if (action === "send-sms") {
+        requireVerified("send SMS", () => {
+          const tpl = btn.dataset.template;
+          logActivity(`SMS sent (${tpl}) to number on file (demo).`);
+          showToast("Text message queued (demo).");
+        });
+        return;
+      }
+      if (action === "doc") {
+        requireVerified("resend document", () => {
+          const doc = btn.dataset.doc === "1095a" ? "Form 1095-A" : "Eligibility determination notice";
+          logActivity(`${doc} resent to email on file (demo).`);
+          showToast(doc + " resend simulated.");
+        });
+        return;
+      }
+      if (action === "sep") {
+        requireVerified("report life event", () => {
+          openModal(
+            "Qualifying life event",
+            "Start SEP workflow for this household? Caller will need event type, date, and supporting documentation if requested.",
+            () => {
+              logActivity("SEP wizard opened — move / marriage / loss of MEC (demo).");
+              showToast("SEP application update started (demo).");
+            }
+          );
+        });
+        return;
+      }
+      if (action === "aptc") {
+        requireVerified("adjust APTC", () => {
+          openModal(
+            "Adjust premium tax credit",
+            "Update the amount of APTC applied to monthly premium (cannot exceed maximum eligible amount).",
+            () => {
+              logActivity("APTC allocation change submitted on application (demo).");
+              showToast("APTC update saved (demo).");
+            }
+          );
+        });
+        return;
+      }
+      if (action === "plan-change") {
+        requireVerified("plan change", () => {
+          logActivity("Plan shopping session linked — OEP/SEP rules applied (demo).");
+          showToast("Plan change flow opened (demo).");
+        });
+        return;
+      }
+      if (action === "cancel") {
+        requireVerified("cancel coverage", () => {
+          openModal(
+            "Cancel coverage",
+            "Walk caller through issuer vs Marketplace cancellation. Confirm effective date and loss of coverage implications.",
+            () => {
+              logActivity("Cancellation request documented; confirmation sent (demo).");
+              showToast("Cancellation workflow recorded (demo).");
+            }
+          );
+        });
+        return;
+      }
+      if (action === "reinstate") {
+        requireVerified("reinstate", () => {
+          logActivity("Reinstatement / cancel rescission reviewed (demo).");
+          showToast("Reinstate request noted (demo).");
+        });
+        return;
+      }
+      if (action === "password") {
+        requireVerified("account help", () => {
+          logActivity("Account unlock / password reset link sent (demo).");
+          showToast("Account recovery initiated (demo).");
+        });
+        return;
+      }
+      if (action === "wrap") {
+        const notes = $("#callNotes").value.trim();
+        logActivity("Interaction wrapped — disposition: Issue resolved (demo)." + (notes ? " Notes saved." : ""));
+        showToast("Call disposition saved (demo).");
+      }
+    });
+  });
+
+  $("#btnSaveNotes").addEventListener("click", () => {
+    logActivity("Call notes saved to member record (demo).");
+    showToast("Notes saved (demo).");
+  });
+
+  setInterval(() => {
+    callSeconds += 1;
+    const m = String(Math.floor(callSeconds / 60)).padStart(2, "0");
+    const s = String(callSeconds % 60).padStart(2, "0");
+    $("#callTimer").textContent = `00:${m}:${s}`;
+  }, 1000);
+
+  loadProfile(profiles[0]);
+})();
+</script>
+</body>
+</html>
